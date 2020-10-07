@@ -43,7 +43,7 @@ class ShortenedUrl < ApplicationRecord
   # TA: Again, the association would return the same user multiple times. You
   # may uncomment the lambda below to eliminate duplicates in the result set.
   has_many :visitors,
-    # -> { distinct },
+    -> { distinct },
     through: :visits,
     source: :visitor
 

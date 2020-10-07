@@ -16,6 +16,7 @@ class ShortenedUrl < ApplicationRecord
       dependent: :destroy
     
     has_many :visitors,
+       -> { distinct },
       through: :visits,
       source: :visitor
 
@@ -33,5 +34,9 @@ class ShortenedUrl < ApplicationRecord
         random_code = SecureRandom::urlsafe_base64
         return random_code unless ShortenedUrl.exists?(short_url: random_code)
       end
+    end
+
+    def num_clicks
+      visits.count
     end
 end
