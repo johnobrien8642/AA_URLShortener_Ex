@@ -9,6 +9,16 @@ class ShortenedUrl < ApplicationRecord
       foreign_key: :submitter_id,
       primary_key: :id
 
+    has_many :visits,
+      class_name: :Visit,
+      foreign_key: :shortened_url_id,
+      primary_key: :id,
+      dependent: :destroy
+    
+    has_many :visitors,
+      through: :visits,
+      source: :visitor
+
 
     def self.create_for_user_and_long_url!(user, long_url)
       ShortenedUrl.create!(
