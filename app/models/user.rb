@@ -16,5 +16,13 @@ class User < ApplicationRecord
     has_many :visited_urls,
       through: :visits,
       source: :shortened_url
+
+    def make_premium
+      toggle(:premium).save
+    end
+
+    def make_non_premium
+      toggle(:premium).save
+    end
       
 end
