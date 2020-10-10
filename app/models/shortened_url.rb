@@ -3,6 +3,7 @@
 class ShortenedUrl < ApplicationRecord
     validates :long_url, :short_url, presence: true
     validates :short_url, uniqueness: true
+    validates :no_spamming
 
     belongs_to :submitter,
       class_name: :User,
@@ -39,6 +40,11 @@ class ShortenedUrl < ApplicationRecord
       )
     end
 
+  def no_spamming
+    num_recent_uniques_in_last_minute_for_user
+  end
+
+
     def self.random_code
       loop do
         random_code = SecureRandom::urlsafe_base64
@@ -60,5 +66,15 @@ class ShortenedUrl < ApplicationRecord
         .where('created_at > ?', 10.minutes.ago)
         .distinct
         .count     
+    end
+
+    private
+
+    def num_recent_uniques_in_last_minute_for_user
+      last_minute = ShortenedUrl
+        .select('id')
+        .where(['created_at > ? AND submitter_id = ?', 1.minutes.ago, self.submitter_id])
+        .count
+      errors[:maximum] << 'of five short urls per minute' if last_minute >= 5
     end
 end
