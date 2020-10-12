@@ -1,13 +1,56 @@
 #!/usr/bin/env ruby
 
 class CLI
-  def create_url
-    puts 'Type in your long url'
-    long_url = gets.chomp
-    shortened_url = ShortenedUrl.create_for_user_and_long_url!(
+  def create_url  
+    if @current_user.premium
+      puts "Hello premium user, would you like to create a custom URL?"
+      puts "0. Yes"
+      puts "1. No"
+      option = Integer(gets.chomp)
+
+      case option
+      when 0
+      puts 'Would you like us to pick random words, or would you like to write it?'
+      puts '0. I would like you to pick random words.'
+      puts '1. I would like to write it.'
+      option2 = Integer(gets.chomp)
+        case option2
+        when 0
+        puts 'Type in your long url'
+          long_url = gets.chomp
+          cust_url = ShortenedUrl.random_words
+          shortened_url = ShortenedUrl.create_cust_url_for_user_from_long_url!(
+            @current_user,
+            long_url,
+            cust_url
+          )
+        when 1
+        puts 'Type in your long url'
+          long_url = gets.chomp
+        puts 'Type in your custom url'
+          cust_url = gets.chomp
+          shortened_url = ShortenedUrl.create_cust_url_for_user_from_long_url!(
+            @current_user,
+            long_url,
+            cust_url
+          )
+        end
+      when 1
+      puts 'Type in your long url'
+        long_url = gets.chomp
+        shortened_url = ShortenedUrl.create_for_user_and_long_url!(
         @current_user,
         long_url
-    )
+        )
+      end
+    else
+      puts 'Type in your long url'
+        long_url = gets.chomp
+        shortened_url = ShortenedUrl.create_for_user_and_long_url!(
+        @current_user,
+        long_url
+        )
+    end
 
     puts "Short url is: #{shortened_url.short_url}"
   end

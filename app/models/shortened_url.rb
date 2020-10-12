@@ -1,5 +1,4 @@
 
-
 class ShortenedUrl < ApplicationRecord
     validates :long_url, :short_url, presence: true
     validates :short_url, uniqueness: true
@@ -40,11 +39,30 @@ class ShortenedUrl < ApplicationRecord
       )
     end
 
+    def self.create_cust_url_for_user_from_long_url!(user, long_url, cust_url)
+      ShortenedUrl.create!(
+        submitter_id: user.id,
+        long_url: long_url,
+        short_url: cust_url
+      )
+    end
+
+    def self.random_words
+      loop do
+        all_words = File.readlines("./lib/assets/dictionary.txt").map(&:chomp)
+        rand_word = ''
+        rand_word += all_words.sample until rand_word.length > 10
+        return rand_word unless ShortenedUrl.exists?(short_url: rand_word)
+      end
+    end
+
     def no_spamming
       num_recent_uniques_in_last_minute_for_user
     end
 
     def non_premium_max
+      return if User.find(self.submitter_id).premium
+      
       if submitter.premium == false && total_urls_for_user > 5
         errors[:maximum] << 'urls for non-premium user' 
       end
