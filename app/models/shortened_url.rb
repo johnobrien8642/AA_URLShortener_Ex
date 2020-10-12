@@ -1,4 +1,4 @@
-
+# require 'byebug'
 class ShortenedUrl < ApplicationRecord
     validates :long_url, :short_url, presence: true
     validates :short_url, uniqueness: true
@@ -29,6 +29,11 @@ class ShortenedUrl < ApplicationRecord
     has_many :tag_topics,
       through: :taggings,
       source: :tag_topic
+
+    has_many :votes,
+      class_name: :Vote,
+      foreign_key: :shortened_url_id,
+      primary_key: :id
 
 
     def self.create_for_user_and_long_url!(user, long_url)

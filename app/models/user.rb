@@ -17,6 +17,12 @@ class User < ApplicationRecord
       through: :visits,
       source: :shortened_url
 
+    has_many :votes_for_user,
+      class_name: :Vote,
+      foreign_key: :user_id,
+      primary_key: :id
+
+
     def make_premium
       toggle(:premium).save
     end
