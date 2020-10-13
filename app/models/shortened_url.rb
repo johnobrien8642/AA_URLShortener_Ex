@@ -130,4 +130,33 @@ class ShortenedUrl < ApplicationRecord
         )) AND users.premium = \'f\'")
         .destroy_all
     end
+
+    def self.top
+      top_urls = ShortenedUrl
+        .joins(:votes)
+        .select('shortened_urls.*', 'COUNT(*) AS vote_counts')
+        .group('id')
+        .order('id ASC')
+      top_urls.map do |url| 
+        puts "primary_id: #{url.id} user_id: #{url.submitter_id} num_votes: #{url.vote_counts}"
+      end
+    end
+
+    def self.hot(n)
+      hot_urls = ShortenedUrl
+        .joins(:votes)
+        .select('shortened_urls.*', 'COUNT(*) AS vote_counts')
+        .where("shortened_urls.id IN ( 
+          SELECT shortened_urls.id
+          FROM shortened_urls
+          JOIN votes ON votes.shortened_url_id = shortened_urls.id
+          GROUP BY shortened_urls.id, votes.created_at
+          HAVING votes.created_at > \'#{n.minutes.ago}\'
+        )")
+        .group('id')
+        .order('id ASC')
+      hot_urls.map do |url|
+        puts "primary_id: #{url.id} user_id: #{url.submitter_id} num_votes: #{url.vote_counts}"
+      end
+    end
 end
